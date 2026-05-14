@@ -11,8 +11,9 @@
     "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
   },
   "dependencies": {
-    "@weight-tracker/shared": "^1.0.0",
     "@tailwindcss/vite": "^4.3.0",
+    "@weight-tracker/shared": "^1.0.0",
+    "axios": "^1.16.1",
     "lucide-react": "^1.14.0",
     "prettier": "^3.8.3",
     "react": "^19.2.6",

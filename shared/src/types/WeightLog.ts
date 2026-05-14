@@ -7,6 +7,11 @@ export interface WeightLogEntry {
   /** The unique MongoDB document identifier. */
   _id: string;
 
+  /** * The ID of the Profile this log belongs to.
+   * @remarks References the `_id` field of a `Profile` document.
+   */
+  userId: string;
+
   /** * The actual weight recorded. 
    * @remarks ALWAYS stored in kilograms on the backend, regardless of user preference.
    */
@@ -30,10 +35,13 @@ export interface WeightLogEntry {
 
 /**
  * Payload for logging a new weight entry.
+ * @remarks 
+ * The payload must include the user ID, weight, and date.
+ * Optional fields are `note` and `photoUrl`.
  */
 export type CreateWeightLogPayload = Pick<
   WeightLogEntry,
-  "weightKg" | "date"
+  "userId" | "weightKg" | "date"
 > & Partial<Pick<WeightLogEntry, "note" | "photoUrl">>;
 
 /**

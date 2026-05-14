@@ -11,8 +11,8 @@ const DAY = 24 * HOUR;
  * Default ports for backend and frontend.
  * Shifted to 5060/5061 to prevent conflicts with the Activity Tracker (5050/5051).
  */
-const BACKEND_PORT = 5060;
-const FRONTEND_PORT = 5061;
+const BACKEND_PORT = 5050;
+const FRONTEND_PORT = 5051;
 
 /**
  * Standard HTTP Status Codes used across the application API.

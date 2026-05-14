@@ -7,6 +7,11 @@ export interface IWeightLogDocument extends Omit<WeightLogEntry, "_id" | "create
 
 const WeightLogSchema: Schema = new Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Profile", // Links to Profile model
+      required: [true, "User ID is required"]
+    },
     weightKg: {
       type: Number,
       required: [true, "Weight is required"],
