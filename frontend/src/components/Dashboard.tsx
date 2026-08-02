@@ -193,6 +193,7 @@ export default function Dashboard(): JSX.Element {
                     stroke="#9ca3af"
                     axisLine={false}
                     tickLine={false}
+                    minTickGap={20}
                   />
                   <YAxis
                     domain={["dataMin - 1", "dataMax + 1"]}
@@ -247,6 +248,7 @@ export default function Dashboard(): JSX.Element {
                     stroke="#9ca3af"
                     axisLine={false}
                     tickLine={false}
+                    minTickGap={20}
                   />
                   <YAxis
                     stroke="#9ca3af"

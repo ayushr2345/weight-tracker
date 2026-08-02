@@ -1,5 +1,5 @@
 import { type JSX } from "react";
-import { Camera } from "lucide-react";
+import { Camera, ImageOff } from "lucide-react";
 import { useGalleryData } from "../hooks/data/useGalleryData";
 
 export default function Gallery(): JSX.Element {
@@ -43,8 +43,30 @@ export default function Gallery(): JSX.Element {
               <img
                 src={photo.url}
                 alt={`Progress on ${photo.date}`}
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = "";
+                  event.currentTarget.style.display = "none";
+                  const fallback =
+                    event.currentTarget.parentElement?.querySelector(
+                      "[data-fallback]",
+                    );
+                  if (fallback instanceof HTMLElement) {
+                    fallback.style.display = "flex";
+                  }
+                }}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
+
+              <div
+                data-fallback
+                className="absolute inset-0 hidden items-center justify-center bg-slate-900/90"
+              >
+                <div className="text-center text-white p-4">
+                  <ImageOff className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                  <p className="text-sm font-medium">Image unavailable</p>
+                </div>
+              </div>
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
 

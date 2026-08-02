@@ -1,5 +1,5 @@
 import { type JSX } from "react";
-import { Camera, Lock, Unlock, Save, Loader2 } from "lucide-react";
+import { Camera, Lock, Unlock, Save, Loader2, ImageOff } from "lucide-react";
 import { useProfileData } from "../hooks/data/useProfileData";
 
 export default function Profile(): JSX.Element {
@@ -29,11 +29,34 @@ export default function Profile(): JSX.Element {
         <div className="relative group shrink-0">
           <div className="w-32 h-32 rounded-full bg-black/40 border-4 border-white/5 flex items-center justify-center overflow-hidden relative z-10">
             {formData.photoUrl ? (
-              <img
-                src={formData.photoUrl}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+              <>
+                <img
+                  src={formData.photoUrl}
+                  alt="Profile"
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = "";
+                    event.currentTarget.style.display = "none";
+                    const fallback =
+                      event.currentTarget.parentElement?.querySelector(
+                        "[data-profile-fallback]",
+                      );
+                    if (fallback instanceof HTMLElement) {
+                      fallback.style.display = "flex";
+                    }
+                  }}
+                  className="w-full h-full object-cover"
+                />
+                <div
+                  data-profile-fallback
+                  className="absolute inset-0 hidden items-center justify-center bg-slate-900/90"
+                >
+                  <div className="text-center text-white p-4">
+                    <ImageOff className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm font-medium">Image unavailable</p>
+                  </div>
+                </div>
+              </>
             ) : (
               <Camera className="w-8 h-8 text-gray-500 group-hover:text-emerald-400 transition-colors" />
             )}

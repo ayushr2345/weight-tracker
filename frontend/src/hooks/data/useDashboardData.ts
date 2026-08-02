@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { profileService } from "../../services/profileService";
 import { weightLogService } from "../../services/weightLogService";
-
-export type DashboardRangeValue = "week" | "month" | "3months" | "year";
+import {
+  filterChartDataByRange,
+  rangeOptions,
+  type DashboardRangeValue,
+} from "./dashboardRange";
 
 export interface DashboardChartEntry {
   date: string;
@@ -12,17 +15,6 @@ export interface DashboardChartEntry {
   bmi: number;
   rollingAvg7: number;
 }
-
-const rangeOptions: Array<{
-  label: string;
-  value: DashboardRangeValue;
-  days: number;
-}> = [
-  { label: "Past Week", value: "week", days: 7 },
-  { label: "Past Month", value: "month", days: 30 },
-  { label: "Past 3 Months", value: "3months", days: 90 },
-  { label: "Past Year", value: "year", days: 365 },
-];
 
 export function useDashboardData() {
   const [chartData, setChartData] = useState<DashboardChartEntry[]>([]);
@@ -44,11 +36,7 @@ export function useDashboardData() {
           return;
         }
 
-        const logsResponse = await weightLogService.getWeightLogs(
-          profile._id,
-          1,
-        );
-        const logs = logsResponse.data;
+        const logs = await weightLogService.getAllWeightLogs(profile._id);
         if (logs.length === 0 || cancelled) {
           setIsLoading(false);
           return;
@@ -138,14 +126,7 @@ export function useDashboardData() {
   }, [chartData]);
 
   const filteredChartData = useMemo(() => {
-    return chartData.filter((item) => {
-      if (!item.dateIso) return false;
-      const latestDate = new Date(chartData[chartData.length - 1]?.dateIso);
-      const cutoffDate = new Date(latestDate);
-      cutoffDate.setDate(cutoffDate.getDate() - selectedRangeOption.days + 1);
-      const itemDate = new Date(item.dateIso);
-      return itemDate >= cutoffDate && itemDate <= latestDate;
-    });
+    return filterChartDataByRange(chartData, selectedRangeOption);
   }, [chartData, selectedRangeOption]);
 
   const rangeButtons = useMemo(

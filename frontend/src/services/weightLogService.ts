@@ -47,6 +47,40 @@ export const weightLogService = {
     return response.data;
   },
 
+  getAllWeightLogs: async (userId: string): Promise<WeightLogEntry[]> => {
+    const response = await apiClient.get<PaginatedWeightLogs>(
+      "/weight/getWeightLogs",
+      {
+        params: {
+          userId,
+          page: 1,
+          photoOnly: undefined,
+        },
+      },
+    );
+
+    const { pagination, data } = response.data;
+    const allLogs = [...data];
+
+    if (pagination.pages > 1) {
+      for (let page = 2; page <= pagination.pages; page += 1) {
+        const nextPageResponse = await apiClient.get<PaginatedWeightLogs>(
+          "/weight/getWeightLogs",
+          {
+            params: {
+              userId,
+              page,
+              photoOnly: undefined,
+            },
+          },
+        );
+        allLogs.push(...nextPageResponse.data.data);
+      }
+    }
+
+    return allLogs;
+  },
+
   /**
    * Logs a new daily weigh-in.
    *
