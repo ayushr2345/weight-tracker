@@ -12,7 +12,7 @@ export interface WeightLogEntry {
    */
   userId: string;
 
-  /** * The actual weight recorded. 
+  /** * The actual weight recorded.
    * @remarks ALWAYS stored in kilograms on the backend, regardless of user preference.
    */
   weightKg: number;
@@ -35,14 +35,15 @@ export interface WeightLogEntry {
 
 /**
  * Payload for logging a new weight entry.
- * @remarks 
+ * @remarks
  * The payload must include the user ID, weight, and date.
  * Optional fields are `note` and `photoUrl`.
  */
 export type CreateWeightLogPayload = Pick<
   WeightLogEntry,
   "userId" | "weightKg" | "date"
-> & Partial<Pick<WeightLogEntry, "note" | "photoUrl">>;
+> &
+  Partial<Pick<WeightLogEntry, "note" | "photoUrl">>;
 
 /**
  * Payload for editing a past weight entry (e.g., fixing a typo).

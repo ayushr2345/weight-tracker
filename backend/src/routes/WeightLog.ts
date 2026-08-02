@@ -1,8 +1,12 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
 import {
   getWeightLogs,
   createWeightLog,
   updateWeightLog,
+  deleteWeightLog,
+  uploadWeightLogPhoto,
 } from "../controllers/WeightLog.js";
 
 /**
@@ -12,6 +16,21 @@ import {
  * Base path: `/api/weight` (configured in app.ts).
  */
 const router = express.Router();
+
+const uploadDir = path.resolve(process.cwd(), "backend/uploads");
+const storage = multer.diskStorage({
+  destination: (
+    _req: express.Request,
+    _file: any,
+    cb: (error: Error | null, destination: string) => void,
+  ) => cb(null, uploadDir),
+  filename: (
+    _req: express.Request,
+    file: any,
+    cb: (error: Error | null, filename: string) => void,
+  ) => cb(null, `${Date.now()}-${file.originalname}`),
+});
+const upload = multer({ storage });
 
 /**
  * @route GET /getWeightLogs
@@ -32,6 +51,7 @@ router.get("/getWeightLogs", getWeightLogs);
  * @access Public
  */
 router.post("/createWeightLog", createWeightLog);
+router.post("/uploadPhoto", upload.single("photo"), uploadWeightLogPhoto);
 
 /**
  * @route PATCH /updateWeightLog/:id
@@ -43,5 +63,6 @@ router.post("/createWeightLog", createWeightLog);
  * @access Public
  */
 router.patch("/updateWeightLog/:id", updateWeightLog);
+router.delete("/deleteWeightLog/:id", deleteWeightLog);
 
 export default router;

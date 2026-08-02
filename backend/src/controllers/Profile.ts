@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { ProfileModel } from "../models/Profile.js";
 import { HTTP_STATUS, APP_LIMITS } from "@weight-tracker/shared";
 import { UpdateProfilePayload } from "@weight-tracker/shared";
+import path from "path";
+import { fileURLToPath } from "url";
 
 /**
  * @route GET /api/profile
@@ -14,13 +16,45 @@ export const getProfile = async (req: Request, res: Response) => {
     const profile = await ProfileModel.findOne();
 
     if (!profile) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Profile not found. Please create one." });
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: "Profile not found. Please create one." });
     }
 
     return res.status(HTTP_STATUS.OK).json(profile);
   } catch (error) {
     console.error("Error fetching profile:", error);
-    return res.status(HTTP_STATUS.SERVER_ERROR).json({ error: "Internal Server Error" });
+    return res
+      .status(HTTP_STATUS.SERVER_ERROR)
+      .json({ error: "Internal Server Error" });
+  }
+};
+
+/**
+ * @route POST /api/profile/uploadPhoto
+ * @desc Handles single-file uploads for profile photos (multipart/form-data)
+ */
+export const uploadProfilePhoto = async (req: Request, res: Response) => {
+  try {
+    // Multer attaches the file to req.file
+    const file = (req as any).file;
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // Build an accessible URL to the uploaded file
+    const host = req.get("host");
+    const protocol = req.protocol;
+    // Files are saved to backend/uploads with diskStorage filename
+    const filename = path.basename(
+      file.path || file.filename || file.originalname,
+    );
+    const url = `${protocol}://${host}/uploads/${filename}`;
+
+    return res.status(200).json({ url });
+  } catch (error) {
+    console.error("Error uploading profile photo:", error);
+    return res.status(500).json({ error: "Could not upload file" });
   }
 };
 
@@ -28,38 +62,48 @@ export const getProfile = async (req: Request, res: Response) => {
  * @route PUT /api/profile
  * @desc Create or Update the profile (Upsert)
  */
-export const upsertProfile = async (req: Request<{}, {}, UpdateProfilePayload>, res: Response) => {
+export const upsertProfile = async (
+  req: Request<{}, {}, UpdateProfilePayload>,
+  res: Response,
+) => {
   try {
     const updateData = req.body;
 
     // Optional: Add manual validation here if needed, but Mongoose will catch standard violations
-    if (updateData.heightCm && (updateData.heightCm < APP_LIMITS.MIN_HEIGHT_CM || updateData.heightCm > APP_LIMITS.MAX_HEIGHT_CM)) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Invalid height range." });
+    if (
+      updateData.heightCm &&
+      (updateData.heightCm < APP_LIMITS.MIN_HEIGHT_CM ||
+        updateData.heightCm > APP_LIMITS.MAX_HEIGHT_CM)
+    ) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: "Invalid height range." });
     }
 
-    // Upsert Logic: Find the first document and update it. 
+    // Upsert Logic: Find the first document and update it.
     // If it doesn't exist (upsert: true), create it with setDefaultsOnInsert.
     const updatedProfile = await ProfileModel.findOneAndUpdate(
       {}, // Empty filter targets the first document
       { $set: updateData },
-      { 
+      {
         new: true, // Return the modified document
         upsert: true, // Create if it doesn't exist
         runValidators: true, // Enforce the Mongoose schema limits
-        setDefaultsOnInsert: true 
-      }
+        setDefaultsOnInsert: true,
+      },
     );
 
     return res.status(HTTP_STATUS.OK).json(updatedProfile);
-
   } catch (error: any) {
     console.error("Error upserting profile:", error);
-    
+
     // Catch Mongoose Validation Errors beautifully
     if (error.name === "ValidationError") {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: error.message });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: error.message });
     }
 
-    return res.status(HTTP_STATUS.SERVER_ERROR).json({ error: "Internal Server Error" });
+    return res
+      .status(HTTP_STATUS.SERVER_ERROR)
+      .json({ error: "Internal Server Error" });
   }
 };

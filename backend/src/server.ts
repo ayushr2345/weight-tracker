@@ -11,6 +11,7 @@ import weightLogRoutes from "./routes/WeightLog.js";
 import { DEFAULT_PORTS } from "@weight-tracker/shared";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 // Recreate __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -36,6 +37,11 @@ connectDB();
  */
 app.use(cors());
 app.use(express.json());
+
+// Ensure uploads directory exists and serve it statically
+const uploadsDir = path.resolve(process.cwd(), "backend/uploads");
+fs.mkdirSync(uploadsDir, { recursive: true });
+app.use("/uploads", express.static(uploadsDir));
 
 /**
  * API Routes

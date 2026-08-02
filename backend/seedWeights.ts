@@ -11,7 +11,8 @@ const WeightLogSchema = new mongoose.Schema({
   weightKg: { type: Number, required: true },
   date: { type: Date, required: true },
 });
-const WeightLog = mongoose.models.WeightLog || mongoose.model("WeightLog", WeightLogSchema);
+const WeightLog =
+  mongoose.models.WeightLog || mongoose.model("WeightLog", WeightLogSchema);
 
 const TARGET_USER_ID = "6a061119a259c657a8323181";
 
@@ -238,7 +239,8 @@ const rawData = `26/1/26
 const seedDatabase = async () => {
   try {
     // 1. Connect to the DB
-    const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/weight-tracker";
+    const MONGO_URI =
+      process.env.MONGO_URI || "mongodb://localhost:27017/weight-tracker";
     await mongoose.connect(MONGO_URI);
     console.log("✅ Connected to MongoDB");
 
@@ -254,21 +256,23 @@ const seedDatabase = async () => {
       // Convert "DD/MM/YY" into a standard Date object
       const [day, month, year] = dateStr.split("/");
       const fullYear = 2000 + parseInt(year);
-      
+
       // Set to UTC midnight to avoid timezone shifting
-      const dateObj = new Date(Date.UTC(fullYear, parseInt(month) - 1, parseInt(day)));
+      const dateObj = new Date(
+        Date.UTC(fullYear, parseInt(month) - 1, parseInt(day)),
+      );
 
       // 3. Prepare the Upsert Operation
       // We use upsert so if you run this script twice, it doesn't create duplicate entries
       bulkOperations.push({
         updateOne: {
           filter: { date: dateObj, userId: TARGET_USER_ID },
-          update: { 
-            $set: { 
-              weightKg: weight, 
-              date: dateObj, 
-              userId: TARGET_USER_ID 
-            } 
+          update: {
+            $set: {
+              weightKg: weight,
+              date: dateObj,
+              userId: TARGET_USER_ID,
+            },
           },
           upsert: true,
         },
@@ -276,11 +280,14 @@ const seedDatabase = async () => {
     }
 
     // 4. Execute the bulk write
-    console.log(`⏳ Pushing ${bulkOperations.length} records to the database...`);
+    console.log(
+      `⏳ Pushing ${bulkOperations.length} records to the database...`,
+    );
     const result = await WeightLog.bulkWrite(bulkOperations);
-    
-    console.log(`✅ Success! Upserted ${result.upsertedCount} new logs and updated ${result.modifiedCount} existing logs.`);
 
+    console.log(
+      `✅ Success! Upserted ${result.upsertedCount} new logs and updated ${result.modifiedCount} existing logs.`,
+    );
   } catch (error) {
     console.error("❌ Seeding Error:", error);
   } finally {

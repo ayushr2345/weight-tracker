@@ -1,24 +1,10 @@
 import { type JSX } from "react";
 import { Camera } from "lucide-react";
-
-// Mock Data - Replace with actual photo URLs from your DB/S3
-const mockPhotos = [
-  {
-    id: 1,
-    date: "May 7",
-    weight: 84.9,
-    url: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=500&auto=format&fit=crop",
-  },
-  {
-    id: 2,
-    date: "May 1",
-    weight: 86.5,
-    url: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=500&auto=format&fit=crop",
-  },
-  // Add more placeholders to see the grid fill out
-];
+import { useGalleryData } from "../hooks/data/useGalleryData";
 
 export default function Gallery(): JSX.Element {
+  const { photos } = useGalleryData();
+
   return (
     <div className="space-y-6 w-full max-w-6xl mx-auto">
       <div className="flex items-center justify-between">
@@ -33,32 +19,47 @@ export default function Gallery(): JSX.Element {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {mockPhotos.map((photo) => (
-          <div
-            key={photo.id}
-            className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 cursor-pointer"
-          >
-            {/* Background Image */}
-            <img
-              src={photo.url}
-              alt={`Progress on ${photo.date}`}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-
-            {/* Gradient Overlay for Text Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-
-            {/* Text Overlay */}
-            <div className="absolute bottom-0 left-0 w-full p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-              <p className="text-white font-bold text-lg">{photo.weight} kg</p>
-              <p className="text-emerald-400 text-sm font-medium">
-                {photo.date}
-              </p>
-            </div>
+      {photos.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-12 flex flex-col items-center justify-center gap-4">
+          <div className="p-4 rounded-full bg-gray-900/50 border border-white/5">
+            <Camera className="w-10 h-10 text-emerald-400" />
           </div>
-        ))}
-      </div>
+          <div className="text-center">
+            <p className="text-gray-200 font-semibold text-lg">
+              No photos uploaded
+            </p>
+            <p className="text-gray-400 text-sm mt-1">
+              Upload photos from the Daily Log to populate your timeline.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {photos.map((photo) => (
+            <div
+              key={photo.id}
+              className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 cursor-pointer"
+            >
+              <img
+                src={photo.url}
+                alt={`Progress on ${photo.date}`}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+
+              <div className="absolute bottom-0 left-0 w-full p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                <p className="text-white font-bold text-lg">
+                  {photo.weight} kg
+                </p>
+                <p className="text-emerald-400 text-sm font-medium">
+                  {photo.date}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

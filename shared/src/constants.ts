@@ -46,7 +46,7 @@ export const APP_LIMITS = {
   // --- Profile Text Limits ---
   /** Maximum allowed characters for a user's display name. */
   MAX_NAME_LENGTH: 50,
-  
+
   /** Maximum allowed characters for the user's status/tagline to prevent UI breaking. */
   MAX_STATUS_LENGTH: 150,
 
@@ -69,7 +69,7 @@ export const APP_LIMITS = {
   // --- Enums & Options ---
   /** Valid gender options matching the Mongoose schema. */
   VALID_GENDERS: ["male", "female", "other"] as const,
-  
+
   /** Valid unit system preferences. */
   VALID_UNIT_SYSTEMS: ["metric", "imperial"] as const,
 
@@ -107,5 +107,5 @@ export const TIME = {
   SEC,
   MIN,
   HOUR,
-  DAY
+  DAY,
 };

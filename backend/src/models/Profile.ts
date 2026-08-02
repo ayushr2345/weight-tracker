@@ -2,7 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 import { APP_LIMITS } from "@weight-tracker/shared";
 import { Profile } from "@weight-tracker/shared";
 
-export interface IProfileDocument extends Omit<Profile, "_id" | "createdAt" | "updatedAt">, Document {}
+export interface IProfileDocument
+  extends Omit<Profile, "_id" | "createdAt" | "updatedAt">, Document {}
 
 const ProfileSchema: Schema = new Schema(
   {
@@ -10,12 +11,18 @@ const ProfileSchema: Schema = new Schema(
       type: String,
       required: [true, "Name is required"],
       trim: true,
-      maxlength: [APP_LIMITS.MAX_NAME_LENGTH, `Name cannot exceed ${APP_LIMITS.MAX_NAME_LENGTH} characters`],
+      maxlength: [
+        APP_LIMITS.MAX_NAME_LENGTH,
+        `Name cannot exceed ${APP_LIMITS.MAX_NAME_LENGTH} characters`,
+      ],
     },
     status: {
       type: String,
       trim: true,
-      maxlength: [APP_LIMITS.MAX_STATUS_LENGTH, `Status cannot exceed ${APP_LIMITS.MAX_STATUS_LENGTH} characters`],
+      maxlength: [
+        APP_LIMITS.MAX_STATUS_LENGTH,
+        `Status cannot exceed ${APP_LIMITS.MAX_STATUS_LENGTH} characters`,
+      ],
       default: "",
     },
     age: {
@@ -35,8 +42,14 @@ const ProfileSchema: Schema = new Schema(
     heightCm: {
       type: Number,
       required: [true, "Height is required"],
-      min: [APP_LIMITS.MIN_HEIGHT_CM, `Height must be at least ${APP_LIMITS.MIN_HEIGHT_CM}cm`],
-      max: [APP_LIMITS.MAX_HEIGHT_CM, `Height cannot exceed ${APP_LIMITS.MAX_HEIGHT_CM}cm`],
+      min: [
+        APP_LIMITS.MIN_HEIGHT_CM,
+        `Height must be at least ${APP_LIMITS.MIN_HEIGHT_CM}cm`,
+      ],
+      max: [
+        APP_LIMITS.MAX_HEIGHT_CM,
+        `Height cannot exceed ${APP_LIMITS.MAX_HEIGHT_CM}cm`,
+      ],
     },
     unitSystem: {
       type: String,
@@ -47,10 +60,18 @@ const ProfileSchema: Schema = new Schema(
       },
       default: "metric",
     },
+    photoUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-export const ProfileModel = mongoose.model<IProfileDocument>("Profile", ProfileSchema);
+export const ProfileModel = mongoose.model<IProfileDocument>(
+  "Profile",
+  ProfileSchema,
+);

@@ -1,16 +1,12 @@
-import { useState, type JSX } from "react";
+import { type JSX } from "react";
 import UI from "./components/UI";
 import Dashboard from "./components/Dashboard";
 import DailyLog from "./components/DailyLog";
 import Gallery from "./components/Gallery";
 import Profile from "./components/Profile";
-import {
-  LayoutDashboard,
-  Scale,
-  Image as ImageIcon,
-  UserCircle,
-  TrendingDown,
-} from "lucide-react";
+import History from "./components/History";
+import { TrendingDown } from "lucide-react";
+import { useAppNavigation } from "./hooks/logic/useAppNavigation";
 
 /**
  * The root component of the Weight Tracker application.
@@ -19,14 +15,7 @@ import {
  * Dashboard, Daily Log, Gallery, and Profile views.
  */
 function App(): JSX.Element {
-  const [selectedTab, setSelectedTab] = useState("Dashboard");
-
-  const tabs = [
-    { id: "Dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "Daily Log", label: "Daily Log", icon: Scale },
-    { id: "Gallery", label: "Gallery", icon: ImageIcon },
-    { id: "Profile", label: "Profile", icon: UserCircle },
-  ];
+  const { tabs, selectedTab } = useAppNavigation();
 
   return (
     <>
@@ -35,7 +24,6 @@ function App(): JSX.Element {
 
         <main className="relative z-10 p-4 sm:p-6 lg:p-8 min-h-screen flex flex-col items-center">
           <div className="w-full max-w-6xl space-y-8 sm:space-y-12">
-            {/* 1. Header Section */}
             <div className="text-center space-y-4 pt-4 sm:pt-8">
               <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 mb-2 backdrop-blur-sm shadow-xl">
                 <TrendingDown className="w-8 h-8 text-emerald-400" />
@@ -51,17 +39,16 @@ function App(): JSX.Element {
               </p>
             </div>
 
-            {/* 2. Navigation Tabs (Floating Dock Style) */}
             <div className="sticky top-4 z-50 flex justify-center">
               <div className="glass p-1.5 rounded-2xl border border-white/10 shadow-2xl flex flex-wrap justify-center gap-1 sm:gap-2 bg-gray-900/80 backdrop-blur-xl">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
-                  const isActive = selectedTab === tab.id;
+                  const isActive = tab.isActive;
 
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setSelectedTab(tab.id)}
+                      onClick={tab.onClick}
                       className={`
                         relative px-4 sm:px-5 py-2.5 rounded-xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center gap-2.5
                         ${
@@ -76,7 +63,6 @@ function App(): JSX.Element {
                       />
                       <span>{tab.label}</span>
 
-                      {/* Active Indicator Dot */}
                       {isActive && (
                         <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,1)]" />
                       )}
@@ -86,10 +72,10 @@ function App(): JSX.Element {
               </div>
             </div>
 
-            {/* 3. Main Content Area */}
             <div className="animate-fade-in-up pb-10">
               {selectedTab === "Dashboard" && <Dashboard />}
               {selectedTab === "Daily Log" && <DailyLog />}
+              {selectedTab === "History" && <History />}
               {selectedTab === "Gallery" && <Gallery />}
               {selectedTab === "Profile" && <Profile />}
             </div>

@@ -4,10 +4,7 @@
  * Handles fetching and updating the user's biometric baseline.
  */
 import apiClient from "./apiClient";
-import type {
-  Profile,
-  UpdateProfilePayload,
-} from "@weight-tracker/shared";
+import type { Profile, UpdateProfilePayload } from "@weight-tracker/shared";
 
 export const profileService = {
   /**
@@ -29,8 +26,24 @@ export const profileService = {
   upsertProfile: async (data: UpdateProfilePayload): Promise<Profile> => {
     const response = await apiClient.put<Profile>(
       "/profile/upsertProfile",
-      data
+      data,
     );
     return response.data;
+  },
+
+  /**
+   * Uploads a profile photo file and returns the hosted URL.
+   */
+  uploadPhoto: async (file: File): Promise<string> => {
+    const form = new FormData();
+    form.append("photo", file);
+
+    const response = await apiClient.post<{ url: string }>(
+      "/profile/uploadPhoto",
+      form,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
+
+    return response.data.url;
   },
 };

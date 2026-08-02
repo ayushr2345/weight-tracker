@@ -26,6 +26,9 @@ export interface Profile {
   /** The user's preferred unit system for frontend display conversions. */
   unitSystem: "metric" | "imperial";
 
+  /** Optional URL to the user's profile photo (can be hosted or data URL). */
+  photoUrl?: string;
+
   /** Timestamp when the profile was created. */
   createdAt: Date;
 

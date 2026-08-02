@@ -29,10 +29,20 @@ export const weightLogService = {
    */
   getWeightLogs: async (
     userId: string,
-    page: number = 1
+    page: number = 1,
+    month?: string,
+    photoOnly?: boolean,
   ): Promise<PaginatedWeightLogs> => {
     const response = await apiClient.get<PaginatedWeightLogs>(
-      `/weight/getWeightLogs?userId=${encodeURIComponent(userId)}&page=${page}`
+      "/weight/getWeightLogs",
+      {
+        params: {
+          userId,
+          page,
+          month,
+          photoOnly: photoOnly ? "true" : undefined,
+        },
+      },
     );
     return response.data;
   },
@@ -44,11 +54,11 @@ export const weightLogService = {
    * @returns A promise resolving to the newly created WeightLogEntry.
    */
   createWeightLog: async (
-    data: CreateWeightLogPayload
+    data: CreateWeightLogPayload,
   ): Promise<WeightLogEntry> => {
     const response = await apiClient.post<WeightLogEntry>(
       "/weight/createWeightLog",
-      data
+      data,
     );
     return response.data;
   },
@@ -62,12 +72,33 @@ export const weightLogService = {
    */
   updateWeightLog: async (
     logId: string,
-    updatedData: UpdateWeightLogPayload
+    updatedData: UpdateWeightLogPayload,
   ): Promise<WeightLogEntry> => {
     const response = await apiClient.patch<WeightLogEntry>(
       `/weight/updateWeightLog/${logId}`,
-      updatedData
+      updatedData,
     );
     return response.data;
+  },
+
+  uploadPhoto: async (file: File): Promise<string> => {
+    const form = new FormData();
+    form.append("photo", file);
+
+    const response = await apiClient.post<{ url: string }>(
+      "/weight/uploadPhoto",
+      form,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
+
+    return response.data.url;
+  },
+
+  deleteWeightLog: async (logId: string, userId: string): Promise<void> => {
+    await apiClient.delete(`/weight/deleteWeightLog/${logId}`, {
+      params: { userId },
+    });
   },
 };
