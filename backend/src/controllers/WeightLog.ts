@@ -38,9 +38,10 @@ export const createWeightLog = async (
       });
     }
 
+    console.log("date from req:", date);
     const logDate = new Date(date);
     logDate.setHours(0, 0, 0, 0);
-
+    console.log("new date: ", logDate);
     const newLog = new WeightLogModel({
       userId,
       weightKg,

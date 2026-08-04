@@ -83,6 +83,9 @@ export function useDailyLogForm() {
         const selectedDate = new Date(date);
         selectedDate.setHours(0, 0, 0, 0);
 
+        console.log("selected date:", selectedDate.toISOString());
+        //TODO: date should be given in ISO format and not js Date object. Fix this in the backend as well.
+
         let photoUrl: string | undefined;
         if (photo) {
           photoUrl = await weightLogService.uploadPhoto(photo);
