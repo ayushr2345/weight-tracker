@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
     envDir: "../",
     define: {
       "import.meta.env.VITE_API_BASE_URL": JSON.stringify(apiBaseUrl),
+      "import.meta.env.VITE_BACKEND_PORT": JSON.stringify(backendPort),
     },
     server: {
       port: parseInt(env.FRONTEND_PORT) || DEFAULT_PORTS.DEFAULT_PORT_FRONTEND,
