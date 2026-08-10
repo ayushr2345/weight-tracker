@@ -52,4 +52,4 @@ ENV BACKEND_PORT=$BACKEND_PORT
 EXPOSE $BACKEND_PORT
 
 # Start the compiled server
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/src/server.js"]

@@ -19,6 +19,7 @@ services:
       # Uses Docker's internal DNS to route to the 'mongo' service name, not localhost
       - MONGO_URI=mongodb://mongo:27017/weight-tracker
       - BACKEND_PORT=${BACKEND_PORT:-5050}
+      - TZ=Asia/Kolkata
     depends_on:
       - mongo
     restart: unless-stopped
@@ -41,6 +42,8 @@ services:
       # Maps your chosen external port (e.g., 5051) to Nginx's internal port (80).
       # Nginx always listens on 80 natively, so the container port must remain 80.
       - "${FRONTEND_PORT:-5051}:80"
+    environment:
+      - TZ=Asia/Kolkata
     depends_on:
       - backend
     restart: unless-stopped

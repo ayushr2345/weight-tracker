@@ -20,6 +20,7 @@ services:
       # Forces the backend to talk to the isolated dev-mongo container, not your local database
       - MONGO_URI=mongodb://dev-mongo:27017/weight-tracker
       - BACKEND_PORT=${BACKEND_PORT:-5050}
+      - TZ=Asia/Kolkata
     depends_on:
       - dev-mongo
     volumes:
@@ -44,6 +45,7 @@ services:
       # Tells the browser where to route API calls. It dynamically catches the backend port.
       - VITE_API_BASE_URL=http://localhost:${BACKEND_PORT:-5050}/api
       - FRONTEND_PORT=${FRONTEND_PORT:-5051}
+      - TZ=Asia/Kolkata
     depends_on:
       - dev-backend
     volumes:
