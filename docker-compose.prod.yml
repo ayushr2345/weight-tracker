@@ -17,7 +17,7 @@ services:
       # Signals to Express and other libraries to optimize for performance (caching, less logging)
       - NODE_ENV=production
       # Uses Docker's internal DNS to route to the 'mongo' service name, not localhost
-      - MONGO_URI=mongodb://mongo:27018/weight-tracker
+      - MONGO_URI=mongodb://mongo:27017/weight-tracker
       - BACKEND_PORT=${BACKEND_PORT:-5050}
       - TZ=Asia/Kolkata
     depends_on:
@@ -56,11 +56,11 @@ services:
     container_name: weight-tracker-mongo
     ports:
       # Exposed strictly for direct database management (e.g., via MongoDB Compass)
-      - "27018:27018"
+      - "27018:27017"
     volumes:
       # The production database lives here. 
       # Completely physically isolated from the 'dev_mongo_data' volume.
-      - mongo_data:/data/db
+      - weight_tracker_mongo_data:/data/db
     restart: unless-stopped
 
   # ==========================================
@@ -81,7 +81,7 @@ services:
         while true; do
           echo 'Starting daily MongoDB production backup...';
           # Dumps a timestamped, gzip-compressed snapshot of the database
-          mongodump --uri='mongodb://mongo:27018/weight-tracker' --archive=/backups/backup-$$(date +%Y-%m-%d_%H-%M).gz --gzip;
+          mongodump --uri='mongodb://mongo:27017/weight-tracker' --archive=/backups/backup-$$(date +%Y-%m-%d_%H-%M).gz --gzip;
           echo 'Backup complete. Sleeping for 24 hours.';
           sleep 86400; # 24 hours in seconds
         done
@@ -90,4 +90,4 @@ services:
 
 # Declares the persistent volume for production
 volumes:
-  mongo_data:
+  weight_tracker_mongo_data:
