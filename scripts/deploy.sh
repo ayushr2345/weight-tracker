@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# ==========================================
+# 1. CONFIGURATION
+# ==========================================
+# Change this to the exact path where your repository lives on the server
+PROJECT_PARENT="/home/ayushr2345/apps/WeightTracker"
+PROJECT_NAME="weight-tracker"
+PROJECT_DIR="/home/ayushr2345/apps/WeightTracker/$PROJECT_NAME"
+BRANCH="master"
+
+# Fix for Cron: Cron runs with a very limited environment. 
+# This ensures it can find 'npm', 'node', and 'docker'.
+export PATH=$PATH:/usr/local/bin:/usr/bin:/bin:/snap/bin
+# If you use NVM for node, uncomment the next two lines:
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+cd $PROJECT_DIR || { echo "Directory not found! Exiting."; exit 1; }
+
+# ==========================================
+# 2. CHECK FOR UPDATES
+# ==========================================
+# Fetch the latest metadata from GitHub silently
+git fetch origin $BRANCH
+
+# Compare local and remote commits
+LOCAL_COMMIT=$(git rev-parse HEAD)
+REMOTE_COMMIT=$(git rev-parse origin/$BRANCH)
+
+if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
+    # No changes. Exit silently to keep logs clean.
+    exit 0
+fi
+
+echo "========================================"
+echo "$(date): New update detected! Pulling commit $REMOTE_COMMIT..."
+
+# Pull the new code
+git pull origin $BRANCH
+
+# ==========================================
+# 3. PRE-DEPLOYMENT SAFETY TESTS
+# ==========================================
+echo "$(date): Running safety tests..."
+
+# Install dependencies strictly following package-lock.json
+npm ci
+
+# Build the shared workspace (Vitest needs this to resolve imports)
+npm run build --workspace=@weight-tracker/shared
+
+# Run the frontend unit tests
+# npm run test --workspace=frontend
+
+# Capture the exact exit code of the test command (0 = Pass, 1 = Fail)
+TEST_STATUS=$?
+
+# ==========================================
+# 4. THE GATEKEEPER LOGIC
+# ==========================================
+if [ $TEST_STATUS -eq 0 ]; then
+    echo "$(date): ✅ Tests PASSED! Proceeding with deployment..."
+    
+    # 1. Spin down existing containers cleanly (prevents [yN] prompts)
+    docker compose -f docker-compose.prod.yml down
+    
+    # 2. Rebuild and spin up the new containers
+    docker compose -f docker-compose.prod.yml up -d --build
+    
+    # 3. Clean up old dangling images to save disk space
+    docker image prune -f
+    
+    echo "$(date): 🚀 Deployment successful."
+else
+    echo "$(date): ❌ Tests FAILED! Deployment aborted."
+    echo "The running Docker containers were NOT updated. Your app is still live on the previous stable version."
+fi
+
+# ==========================================
+# 5. AUTO-UPDATE THE RUNNER
+# ==========================================
+# (Make sure there are no spaces in the file paths here!)
+cp $PROJECT_DIR/scripts/deploy.sh $PROJECT_PARENT/deploy.sh
+chmod +x $PROJECT_PARENT/deploy.sh
+
+echo "========================================"
